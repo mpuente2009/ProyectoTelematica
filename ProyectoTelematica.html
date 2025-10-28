@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIC TAC BRIDGE TOE</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f4f8;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+
+  h1 {
+    color: #4a90e2;
+    margin-bottom: 20px;
+  }
+
+  #board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 10px;
+  }
+
+  .cell {
+    background-color: #ffffff;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .cell:hover {
+    background-color: #e6f0ff;
+  }
+
+  #message {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    min-height: 24px;
+  }
+
+  button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  button:hover {
+    background-color: #357ab8;
+  }
+</style>
+</head>
+<body>
+
+<h1>TIC TAC BRIDGE TOE</h1>
+<div id="board"></div>
+<div id="message"></div>
+<button id="restart">Reiniciar Juego</button>
+
+<script>
+  const boardElement = document.getElementById('board');
+  const messageElement = document.getElementById('message');
+  const restartBtn = document.getElementById('restart');
+
+  let board = ['', '', '', '', '', '', '', '', ''];
+  const human = 'X';
+  const ai = 'O';
+  let gameOver = false;
+
+  // Crear tablero
+  function createBoard() {
+    boardElement.innerHTML = '';
+    board.forEach((cell, index) => {
+      const cellDiv = document.createElement('div');
+      cellDiv.classList.add('cell');
+      cellDiv.dataset.index = index;
+      cellDiv.textContent = cell;
+      cellDiv.addEventListener('click', () => humanMove(index));
+      boardElement.appendChild(cellDiv);
+    });
+  }
+
+  function humanMove(index) {
+    if (board[index] === '' && !gameOver) {
+      board[index] = human;
+      createBoard();
+      if (checkWinner(board, human)) {
+        messageElement.textContent = "¡Ganaste! 🎉";
+        gameOver = true;
+        return;
+      }
+      if (isDraw()) {
+        messageElement.textContent = "Empate 🤝";
+        gameOver = true;
+        return;
+      }
+      aiMove();
+    }
+  }
+
+  function aiMove() {
+    // Movimiento simple: elige una celda vacía aleatoria
+    const emptyIndexes = board.map((v,i) => v === '' ? i : null).filter(v => v !== null);
+    if (emptyIndexes.length === 0) return;
+    const randomIndex = emptyIndexes[Math.floor(Math.random() * emptyIndexes.length)];
+    board[randomIndex] = ai;
+    createBoard();
+    if (checkWinner(board, ai)) {
+      messageElement.textContent = "¡La máquina gana! 🤖";
+      gameOver = true;
+      return;
+    }
+    if (isDraw()) {
+      messageElement.textContent = "Empate 🤝";
+      gameOver = true;
+      return;
+    }
+  }
+
+  function checkWinner(b, player) {
+    const winPatterns = [
+      [0,1,2],[3,4,5],[6,7,8], // filas
+      [0,3,6],[1,4,7],[2,5,8], // columnas
+      [0,4,8],[2,4,6]          // diagonales
+    ];
+    return winPatterns.some(pattern => pattern.every(i => b[i] === player));
+  }
+
+  function isDraw() {
+    return board.every(cell => cell !== '');
+  }
+
+  restartBtn.addEventListener('click', () => {
+    board = ['', '', '', '', '', '', '', '', ''];
+    gameOver = false;
+    messageElement.textContent = '';
+    createBoard();
+  });
+
+  createBoard();
+</script>
+
+</body>
+</html>
